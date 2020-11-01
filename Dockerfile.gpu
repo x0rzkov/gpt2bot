@@ -1,4 +1,4 @@
-FROM  nvidia/cuda:10.2-runtime
+FROM nvidia/cuda:10.2-runtime
 
 WORKDIR /home/user
 
@@ -11,15 +11,18 @@ RUN update-alternatives --set python3 /usr/bin/python3.7
 WORKDIR /opt/service
 COPY requirements.txt .
 
-RUN pip3 install --upgrade pip && \
+RUN python3 -m pip install --upgrade pip && \
     pip3 install -r requirements.txt
 
 COPY . .
 
 ENV LC_ALL=C.UTF-8 \
     LANG=C.UTF-8 \
-    PYTHONDONTWRITEBYTECODE=1
+    PYTHONDONTWRITEBYTECODE=1 \
+    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-10.2/targets/x86_64-linux/lib
 
-EXPOSE 5011
+RUN ln -s /usr/local/cuda-10.2/targets/x86_64-linux/lib/libcudart.so.10.2 /usr/local/cuda-10.2/targets/x86_64-linux/lib/libcudart.so.10.1 && \
+    mkdir -p /opt/logs/
 
-ENTRYPOINT ["python3", "server.py"]
+# EXPOSE 5011
+# ENTRYPOINT ["python3", "server.py"]
